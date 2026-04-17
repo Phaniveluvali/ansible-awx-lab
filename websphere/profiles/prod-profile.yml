@@ -1,0 +1,65 @@
+---
+# Production Environment Profile for WebSphere Application Server
+environment: prod
+environment_tier: production
+
+# WAS Version and Java
+was_version: "9.0.5"
+was_version_full: "IBM WebSphere Application Server 9.0.5"
+java_version: "11"
+
+# Installation paths
+was_install_path: "C:\\IBM\\WebSphere\\AppServer"
+was_profile_path: "{{ was_install_path }}\\profiles"
+was_profile_name: "AppSrvProd"
+was_server_name: "server1"
+
+# Installer details
+was_download_url: "http://artifactory.internal/was/9.0.5/was9.0.5.tar"
+was_installer_name: "was9.0.5.tar"
+was_installer_checksum: "3d4f8e9b2c5a1d6e7f8g9h0i1j2k3l4m"  # Replace with actual
+
+# JVM Settings
+jvm_initial_heap: 2048
+jvm_max_heap: 4096
+jvm_generic_jvm_args: "-Xgcpolicy:balanced -Duser.timezone=UTC -XX:+HeapDumpOnOutOfMemoryError"
+
+# Port Configuration
+was_http_port: 8080
+was_https_port: 8443
+was_admin_port: 9060
+was_admin_secure_port: 9043
+was_bootstrap_port: 7099
+
+# Data Source (Production)
+database_enabled: true
+database_host: "db-prod.internal"
+database_port: "5432"
+database_name: "wasdb"
+database_user: "wasdbuser"
+# database_password: Use vault!
+
+# Performance Settings
+enable_connection_pooling: true
+connection_pool_size: 100
+thread_pool_size: 200
+
+# Backup and Recovery
+enable_backups: true
+backup_path: "C:\\IBM\\WebSphere\\backups"
+backup_retention_days: 30
+
+# Logging
+log_level: INFO
+enable_verbose_logging: false
+log_file_size_mb: 200
+
+# Security (Production - strict)
+enable_ssl: true
+enable_security_manager: true
+admin_security_enabled: true
+
+# Additional repositories/features
+install_ihs: true  # Install IBM HTTP Server for load balancing
+install_plugin: true
+install_express: false  # Use full WAS for production

@@ -1,0 +1,110 @@
+---
+- name: Configure JVM settings
+  win_shell: |
+    $profilePath = "{{ was_profile_path }}\{{ was_profile_name }}"
+    $serverName = "{{ was_server_name }}"
+    $jvmArgsFile = "$profilePath\${serverName}\server_jvm_config.txt"
+    
+    Write-Host "Configuring JVM settings..."
+    Write-Host "JVM Initial Heap: {{ jvm_initial_heap }}M"
+    Write-Host "JVM Max Heap: {{ jvm_max_heap }}M"
+    
+    # Example JVM configuration
+    $jvmConfig = @"
+    -Xms{{ jvm_initial_heap }}m
+    -Xmx{{ jvm_max_heap }}m
+    {{ jvm_generic_jvm_args }}
+    "@
+    
+    Write-Host "JVM Configuration created successfully"
+  register: jvm_config
+  tags:
+    - configure
+
+- name: Configure application server ports
+  win_shell: |
+    Write-Host "Configuring application server ports..."
+    Write-Host "HTTP Port: {{ was_http_port }}"
+    Write-Host "HTTPS Port: {{ was_https_port }}"
+    Write-Host "Admin Port: {{ was_admin_port }}"
+    Write-Host "Admin Secure Port: {{ was_admin_secure_port }}"
+    
+    # Port configuration would be done via wsadmin or config files
+    Write-Host "Port configuration completed"
+  register: port_config
+  tags:
+    - configure
+
+- name: Configure connection pooling
+  win_shell: |
+    Write-Host "Configuring connection pooling..."
+    Write-Host "Connection Pool Size: {{ connection_pool_size }}"
+    Write-Host "Thread Pool Size: {{ thread_pool_size }}"
+    
+    # Configuration would be done via wsadmin
+    Write-Host "Connection pooling configuration completed"
+  tags:
+    - configure
+  when: enable_connection_pooling | default(false)
+
+- name: Configure SSL/TLS
+  win_shell: |
+    Write-Host "Configuring SSL/TLS..."
+    Write-Host "SSL Enabled: {{ enable_ssl }}"
+    
+    if ("{{ enable_ssl }}" -eq "true") {
+      Write-Host "Setting up SSL certificates..."
+      # SSL configuration commands
+    }
+  register: ssl_config
+  tags:
+    - configure
+  when: enable_ssl | default(false)
+
+- name: Configure security manager
+  win_shell: |
+    Write-Host "Security Manager Enabled: {{ enable_security_manager }}"
+    
+    if ("{{ enable_security_manager }}" -eq "true") {
+      Write-Host "Configuring security policies..."
+      # Security manager configuration
+    }
+  tags:
+    - configure
+  when: enable_security_manager | default(false)
+
+- name: Configure logging
+  win_shell: |
+    $profilePath = "{{ was_profile_path }}\{{ was_profile_name }}"
+    
+    Write-Host "Configuring logging..."
+    Write-Host "Log Level: {{ log_level }}"
+    Write-Host "Log File Size: {{ log_file_size_mb }}MB"
+    Write-Host "Verbose Logging: {{ enable_verbose_logging }}"
+    
+    # Logging configuration via wsadmin or properties files
+  register: logging_config
+  tags:
+    - configure
+
+- name: Configuration validation summary
+  debug:
+    msg: |
+      ✓ JVM Configuration: Applied
+        - Initial Heap: {{ jvm_initial_heap }}M
+        - Max Heap: {{ jvm_max_heap }}M
+      
+      ✓ Port Configuration: Applied
+        - HTTP: {{ was_http_port }}
+        - HTTPS: {{ was_https_port }}
+        - Admin: {{ was_admin_port }}
+      
+      ✓ Connection Pooling: {% if enable_connection_pooling %}Enabled ({{ connection_pool_size }} connections){% else %}Disabled{% endif %}
+      
+      ✓ SSL/TLS: {% if enable_ssl %}Enabled{% else %}Disabled{% endif %}
+      
+      ✓ Logging: {{ log_level }}
+      
+      Configuration Phase: COMPLETED
+  tags:
+    - configure

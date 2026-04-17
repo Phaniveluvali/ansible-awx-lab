@@ -1,0 +1,63 @@
+---
+# Test Environment Profile for WebSphere Application Server
+environment: test
+environment_tier: testing
+
+# WAS Version and Java
+was_version: "9.0.5"
+was_version_full: "IBM WebSphere Application Server 9.0.5"
+java_version: "11"
+
+# Installation paths
+was_install_path: "C:\\IBM\\WebSphere\\AppServer-Test"
+was_profile_path: "{{ was_install_path }}\\profiles"
+was_profile_name: "TestAppSrv"
+was_server_name: "test-server1"
+
+# Installer details
+was_download_url: "http://artifactory.internal/was/9.0.5/was9.0.5.tar"
+was_installer_name: "was9.0.5.tar"
+was_installer_checksum: "3d4f8e9b2c5a1d6e7f8g9h0i1j2k3l4m"
+
+# JVM Settings - Between Dev and Prod
+jvm_initial_heap: 1024
+jvm_max_heap: 2048
+jvm_generic_jvm_args: "-Xgcpolicy:gencon -Duser.timezone=UTC"
+
+# Port Configuration
+was_http_port: 9080
+was_https_port: 9443
+was_admin_port: 9061
+was_admin_secure_port: 9044
+was_bootstrap_port: 7100
+
+# Data Source
+database_enabled: false
+database_host: ""
+database_port: ""
+database_name: ""
+database_user: ""
+
+# Performance Settings
+enable_connection_pooling: true
+connection_pool_size: 50
+thread_pool_size: 100
+
+# Backup and Recovery
+enable_backups: true
+backup_path: "C:\\IBM\\WebSphere\\backups-test"
+
+# Logging - Balance between Dev and Prod
+log_level: INFO
+enable_verbose_logging: true
+log_file_size_mb: 100
+
+# Security - Between Dev and Prod
+enable_ssl: false
+enable_security_manager: false
+admin_security_enabled: false
+
+# Additional repositories/features
+install_ihs: false
+install_plugin: false
+install_express: true

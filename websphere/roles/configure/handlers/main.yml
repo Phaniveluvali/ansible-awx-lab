@@ -1,0 +1,9 @@
+---
+# Empty handlers - can be used for restart or reload operations
+- name: restart was server
+  debug:
+    msg: "Restart handler called - implement as needed"
+
+- name: reload configuration
+  debug:
+    msg: "Reload configuration handler called - implement as needed"

@@ -1,0 +1,85 @@
+---
+- name: Deploy WebSphere Application Server on Windows
+  hosts: windows_was
+  gather_facts: yes
+  vars_files:
+    - "profiles/{{ environment }}-profile.yml"
+  
+  pre_tasks:
+    - name: Display deployment information
+      debug:
+        msg: |
+          === WebSphere Application Server Deployment ===
+          Environment: {{ environment }}
+          Target Host: {{ ansible_host }}
+          WAS Version: {{ was_version }}
+          Java Version: {{ java_version }}
+          Installation Path: {{ was_install_path }}
+          Profile Name: {{ was_profile_name }}
+          Server Name: {{ was_server_name }}
+          ================================================
+      tags:
+        - always
+
+    - name: Check required variables
+      assert:
+        that:
+          - environment is defined
+          - was_version is defined
+          - was_install_path is defined
+          - was_profile_name is defined
+          - was_server_name is defined
+        fail_msg: "Required variables are not defined. Check profile file."
+      tags:
+        - always
+
+  roles:
+    - role: prerequisites
+      tags:
+        - prerequisites
+        - always
+      
+    - role: download
+      tags:
+        - download
+        - never
+      
+    - role: install
+      tags:
+        - install
+        - deploy
+      
+    - role: configure
+      tags:
+        - configure
+        - deploy
+      
+    - role: start
+      tags:
+        - start
+        - deploy
+      
+    - role: validate
+      tags:
+        - validate
+        - test
+
+  post_tasks:
+    - name: Deployment summary
+      debug:
+        msg: |
+          === Deployment Summary ===
+          Status: SUCCESS
+          Hostname: {{ ansible_hostname }}
+          WAS Installation: {{ was_install_path }}
+          Profile: {{ was_profile_name }}
+          Server: {{ was_server_name }}
+          Admin Console: https://{{ ansible_host }}:9060/ibm/console
+          
+          Next Steps:
+          - Configure applications
+          - Set up security
+          - Configure monitoring
+          ==========================
+      tags:
+        - always

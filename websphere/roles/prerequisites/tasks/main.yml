@@ -1,0 +1,97 @@
+---
+- name: Check Windows version
+  win_shell: |
+    [System.Environment]::OSVersion.VersionString
+  register: windows_version
+  changed_when: false
+
+- name: Display Windows version
+  debug:
+    msg: "Windows Version: {{ windows_version.stdout }}"
+  tags:
+    - always
+
+- name: Verify running as Administrator
+  win_shell: |
+    $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object System.Security.Principal.WindowsPrincipal($identity)
+    $principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+  register: admin_check
+  changed_when: false
+
+- name: Assert Administrator privileges
+  assert:
+    that:
+      - admin_check.stdout is search('True')
+    fail_msg: "ERROR: Must run as Administrator user"
+  tags:
+    - always
+
+- name: Check if Java is installed
+  win_shell: |
+    java -version 2>&1
+  register: java_check
+  failed_when: false
+  changed_when: false
+
+- name: Assert Java version
+  assert:
+    that:
+      - java_check.rc == 0
+      - java_check.stderr is search(java_version)
+    fail_msg: "Java {{ java_version }} is not installed"
+  tags:
+    - always
+
+- name: Check disk space on installation drive
+  win_shell: |
+    $drive = "C:"
+    $disk = Get-PSDrive $drive | Select-Object -ExpandProperty Free
+    [math]::Round($disk / 1GB, 2)
+  register: disk_space
+  changed_when: false
+
+- name: Verify minimum disk space (10GB)
+  assert:
+    that:
+      - disk_space.stdout | float > 10
+    fail_msg: "Insufficient disk space. Minimum 10GB required, available: {{ disk_space.stdout }}GB"
+  tags:
+    - always
+
+- name: Create temporary installation directory
+  win_file:
+    path: "{{ was_temp_path }}"
+    state: directory
+
+- name: Create WAS installation directory
+  win_file:
+    path: "{{ was_install_path }}"
+    state: directory
+
+- name: Create directories for WAS user
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ was_profile_path }}"
+    - "{{ was_download_path }}"
+    - "{{ backup_path | default('C:\\IBM\\WebSphere\\backups') }}"
+
+- name: Validate network connectivity
+  win_ping:
+  register: network_check
+  tags:
+    - always
+
+- name: Prerequisites validation summary
+  debug:
+    msg: |
+      ✓ Administrator privileges confirmed
+      ✓ Java {{ java_version }} verified
+      ✓ Disk space verified: {{ disk_space.stdout }}GB available
+      ✓ Network connectivity confirmed
+      ✓ Installation directories created
+      Prerequisites check: PASSED
+  tags:
+    - always

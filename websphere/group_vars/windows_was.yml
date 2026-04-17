@@ -1,0 +1,27 @@
+---
+# Global variables for all WebSphere hosts
+# Environment-specific variables are in profiles/
+
+# Generic WAS settings
+was_user: wasadmin
+was_group: wasadmins
+was_temp_path: C:\temp\was_install
+was_download_path: C:\software\was
+
+# WAS Installation defaults (can be overridden by profile)
+java_supported_version: 11
+
+# Logging settings
+log_level: INFO
+enable_debug: false
+
+# Timeout settings (in seconds)
+installation_timeout: 3600
+startup_timeout: 300
+validation_timeout: 60
+
+# Port defaults (will be overridden by profile if needed)
+default_http_port: 80
+default_https_port: 443
+default_admin_port: 9060
+default_admin_secure_port: 9043
