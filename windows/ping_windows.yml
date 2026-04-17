@@ -4,3 +4,15 @@
   tasks:
     - name: Test Windows connectivity
       win_ping:
+      register: ping_result
+
+    - name: Validate ping is successful
+      assert:
+        that:
+          - ping_result is succeeded
+        fail_msg: "Ping to Windows host failed!"
+        success_msg: "Ping is successful"
+
+    - name: Display success message
+      debug:
+        msg: "Ping is successful - Windows host is reachable"
